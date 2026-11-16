@@ -4,7 +4,7 @@ PRD: [prd.md](./prd.md) · Status: Draft
 
 ## 1. Summary
 Extend the `fulfillment` bounded context with a carrier-agnostic **tracking** capability.
-- A `TrackingProvider` port is implemented by an aggregator adapter (proposed: EasyPost) and a `fake` adapter for dev, CI and demo.
+- A `TrackingProvider` port is implemented by an aggregator adapter (EasyPost, decided) and a `fake` adapter for dev, CI and demo.
 - The provider sends updates to `POST /webhooks/tracking/{provider}`. A leader-locked poller backs this up, using the same pattern as `checkout/sweeper`.
 - Updates are normalized into `TrackingEvent`s and stored in a new `fulfillment_tracking_event` table.
 - Updates drive the existing `Fulfillment.Ship` / `Deliver` transitions, so the current integration events (`fulfillment.OrderShipped`, `OrderShippedECST`, `OrderDelivered`) and emails keep working unchanged.
@@ -57,7 +57,7 @@ Extend the `fulfillment` bounded context with a carrier-agnostic **tracking** ca
   2. Set `trackingStatus` and `trackingETA` from the latest event by `OccurredAt`, never by arrival order. Status never regresses from `delivered` (AC-6).
   3. If `autoTracking` is on, apply the transition rules:
      - status ∈ {in_transit, out_for_delivery} and fulfillment `labeled` → call `Ship(firstScan.OccurredAt)`.
-     - status = delivered and fulfillment `labeled` → call `Ship` then `Deliver` (open question #3).
+     - status = delivered and fulfillment `labeled` → call `Ship` then `Deliver` (decided: PRD Q3).
      - status = delivered and fulfillment `shipped` → call `Deliver(deliveredEvent.OccurredAt)`.
   4. Raise a `TrackingStatusChanged{ID, OrderID, From, To, At}` domain event when the normalized status changes.
 
@@ -181,7 +181,7 @@ sequenceDiagram
 |---|---|---|---|
 | **Aggregator, EasyPost (chosen)** | One integration for all four carriers. Webhooks. Per-tracker pricing. Normalized statuses. | Vendor dependency and cost per tracker. | Lowest effort. Swappable behind the port. |
 | Direct carrier APIs (UPS, USPS, FedEx, DHL) | No middleman, no per-tracker fee. | Four OAuth flows, four schemas, carrier account onboarding, and polling-only for some carriers. About 4× the build and maintenance. | Too costly for v1. Can be added later as extra `TrackingProvider` adapters. |
-| Shippo / AfterShip | Similar features. AfterShip has hosted tracking pages. | AfterShip is subscription-priced. Shippo's tracking is tied to its label product. | Comparable. Kept as an open question. |
+| Shippo / AfterShip | Similar features. AfterShip has hosted tracking pages. | AfterShip is subscription-priced. Shippo's tracking is tied to its label product. | Comparable. EasyPost was chosen (PRD Q1). |
 | Links only (no API) | Trivial. | No status, no automation, no exceptions. | Misses most PRD goals. Shipped as the `other` fallback. |
 | Store tracking on the checkout `Order` aggregate | Already has `UpdateTracking`. | Mixes operational state into the event-sourced commercial aggregate, against the Process Manager split. | Violates the existing context boundaries. |
 
@@ -248,10 +248,11 @@ Each task is one PR, in order 1→8. Tasks 6 and 7 can run in parallel after tas
 ## 11. Open questions
 | # | Question | Proposed default | Decision |
 |---|---|---|---|
-| 1 | Provider choice (see PRD Q1). | EasyPost | |
+| 1 | Provider choice (see PRD Q1). | EasyPost | **EasyPost** (2026-11-15) |
 | 2 | Should the poller run in the web process or as a separate `cli` worker? | In-process goroutine with an advisory lock, like the sweeper. | |
 | 3 | Keep the dual write to `checkout.Order` tracking during the transition? | Yes for v1, removed in the clean-up follow-up. | |
 | 4 | How long should tracking events be retained? | Indefinitely (small rows). Revisit with data-retention policy. | |
 
 ## Changelog
 - 2026-11-15: initial draft
+- 2026-11-15: PRD Q1–Q3 resolved (EasyPost; send out-for-delivery email; auto `Ship`+`Deliver` from `labeled`).

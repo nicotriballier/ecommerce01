@@ -106,10 +106,11 @@ Consequences:
 ## 8. Open questions
 | # | Question | Proposed default | Decision |
 |---|---|---|---|
-| 1 | Aggregator (EasyPost / Shippo / AfterShip) or direct carrier APIs? | EasyPost Trackers: pay-per-tracker, webhooks, covers all four carriers. | |
-| 2 | Should the `out_for_delivery` email be sent at all, or is it too noisy? | Send it. It's a single email per shipment. | |
-| 3 | Should a carrier `delivered` scan auto-trigger delivery even if the admin never clicked **mark shipped**? | Yes. Apply `Ship` then `Deliver` in sequence from `labeled`. | |
+| 1 | Aggregator (EasyPost / Shippo / AfterShip) or direct carrier APIs? | EasyPost Trackers: pay-per-tracker, webhooks, covers all four carriers. | **EasyPost** (2026-11-15) |
+| 2 | Should the `out_for_delivery` email be sent at all, or is it too noisy? | Send it. It's a single email per shipment. | **Send it** (2026-11-15) |
+| 3 | Should a carrier `delivered` scan auto-trigger delivery even if the admin never clicked **mark shipped**? | Yes. Apply `Ship` then `Deliver` in sequence from `labeled`. | **Yes** (2026-11-15) |
 | 4 | Do we need a public, unauthenticated tracking page (e.g. `/track/{token}`) for guests? | No. Out of scope for v1. | |
 
 ## Changelog
 - 2026-11-15: initial draft
+- 2026-11-15: decisions confirmed by Nicolas: EasyPost as the provider; UPS/USPS/FedEx/DHL Express as the carriers; one package per order in v1; out-for-delivery email is sent; a carrier `delivered` scan auto-delivers an order that is still `labeled`. Q4 is still open.
