@@ -2,7 +2,7 @@
 
 | Owner | Status | Last updated |
 |---|---|---|
-| Nicolas Triballier | Draft | 2026-11-15 |
+| Nicolas Triballier | Approved | 2026-11-15 |
 
 ## 1. Problem
 Today an admin types a free-text carrier and tracking code when labeling or shipping an order (`/admin/orders/{id}`), then manually clicks **mark shipped** and later **mark delivered**. Customers see the raw carrier string and tracking code on `/order/{id}`. They have no link and no progress, and they get no update between "shipped" and "delivered".
@@ -114,3 +114,4 @@ Consequences:
 ## Changelog
 - 2026-11-15: initial draft
 - 2026-11-15: decisions confirmed by Nicolas: EasyPost as the provider; UPS/USPS/FedEx/DHL Express as the carriers; one package per order in v1; out-for-delivery email is sent; a carrier `delivered` scan auto-delivers an order that is still `labeled`. Q4 is still open.
+- 2026-11-15: approved by Nicolas.

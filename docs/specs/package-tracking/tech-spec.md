@@ -1,6 +1,6 @@
 # Tech spec: Package tracking across major US carriers
 
-PRD: [prd.md](./prd.md) · Status: Draft
+PRD: [prd.md](./prd.md) · Status: Approved
 
 ## 1. Summary
 Extend the `fulfillment` bounded context with a carrier-agnostic **tracking** capability.
@@ -256,3 +256,4 @@ Each task is one PR, in order 1→8. Tasks 6 and 7 can run in parallel after tas
 ## Changelog
 - 2026-11-15: initial draft
 - 2026-11-15: PRD Q1–Q3 resolved (EasyPost; send out-for-delivery email; auto `Ship`+`Deliver` from `labeled`).
+- 2026-11-15: approved by Nicolas.
